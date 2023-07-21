@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react'
 import PropTypes from 'prop-types';
 import { 
             HeaderStyled,
@@ -9,32 +9,28 @@ import {
         } from './SearchbarStyled';
 
 
-export class Searchbar extends Component {
-    state = {
-        inputNameImages: '',
+export default function Searchbar ({onSubmit}) {
+    const [inputNameImages, setInputNameImages] = useState('');
+
+    const hendleInputChange = event => {
+        setInputNameImages(event.currentTarget.value.trim().toLowerCase());
     };
 
-    hendleInputChange = event => {
-        this.setState({
-            inputNameImages: event.currentTarget.value.trim().toLowerCase(),
-        });
-    };
-
-    hendleSubmit = event => {
+    const hendleSubmit = event => {
         event.preventDefault();
-        if (this.state.inputNameImages === '') {
+        if (inputNameImages === '') {
             alert('enter word to search images, please');
             return;
         }
 
-        this.props.onSubmit(this.state.inputNameImages);
-        this.setState({ inputNameImages: '' });
+        onSubmit(inputNameImages);
+        setInputNameImages('');
     };
 
-    render() {
+
         return (
         <HeaderStyled>
-            <SearchFormStyled onSubmit={this.hendleSubmit}>
+            <SearchFormStyled onSubmit={hendleSubmit}>
                 <SearchFormButtonStyled type="submit">
                     <SearchIconStyled />
                 </SearchFormButtonStyled>
@@ -44,13 +40,13 @@ export class Searchbar extends Component {
                     autoComplete="off"
                     autoFocus
                     placeholder="Search images and photos"
-                    value={this.state.inputNameImages}
-                    onChange={this.hendleInputChange}
+                    value={inputNameImages}
+                    onChange={hendleInputChange}
                 />
             </SearchFormStyled>
 
         </HeaderStyled>
-    )}
+    )
 }
 
 Searchbar.propTypes = {

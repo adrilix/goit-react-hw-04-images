@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { DivStyled } from './AppStyled';
 
-import { Searchbar } from 'components/Searchbar/Searchbar';
+import Searchbar  from 'components/Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import getImagePixabay from 'services/api';
 
