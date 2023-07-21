@@ -1,82 +1,77 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react'
 import { DivStyled } from './AppStyled';
-import {Searchbar} from 'components/Searchbar/Searchbar';
+
+import { Searchbar } from 'components/Searchbar/Searchbar';
 import ImageGallery from '../ImageGallery/ImageGallery';
 import getImagePixabay from 'services/api';
 
+export default function App() {
+    const [images, setImages] = useState([]);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [inputNameImages, setInputNameImages] = useState('');
+    const [status, setStatus] = useState('idle');
+    const [showModal, setShowModal] = useState(false);
+    const [largeImage, setLargeImage] = useState('');
+    const [total, setTotal] = useState(0);
 
-
-export class App extends Component {
-  state = {
-    images: [],
-    pageNumber: 1,
-    inputNameImages: "",
-    status: 'idle',    
-    showModal: false,
-    largeImage: '',    
-    total: 0,   
-  };
-
-  async componentDidUpdate(_, prevState) {
-  
-    if (
-        prevState.inputNameImages !== this.state.inputNameImages ||
-        prevState.pageNumber !== this.state.pageNumber
-    ) {
-      getImagePixabay(this.state.pageNumber, this.state.inputNameImages)
+    useEffect(() => {
+        if (!inputNameImages) {
+            return;
+        }
+        getImagePixabay(pageNumber, inputNameImages)
         .then(({ hits, total }) => {
             if (total === 0) {
-                return this.state({ status: 'rejected' });
+                return setStatus('rejected');
             }
-            return this.setState(prevState =>{
-                return (
-                    {
-                        images: [...prevState.images, ...hits],
-                        status: 'resolved',
-                        total,
-                    }
+            return (
+                setImages(prevImages =>[...prevImages, ...hits]),
+                setStatus('resolved'),
+                setTotal(total)
                 )
-            }
-            );
-        })
-        .catch(error => this.setState({ status: 'rejected' }));
-}
+        }
+        )
+        .catch(error => setStatus('rejected'))
 
-}
+    
+    }, [inputNameImages, pageNumber]);
 
-  handleSearchFormSubmit = inputNameImages => {
-      this.setState({inputNameImages, images: [], pageNumber: 1 });
-  };
 
-  openModal = img => {
-    this.setState({ showModal: true, largeImage: img });
-};
-closeModal = () => {
-    this.setState({ showModal: false });
-};
-loadMore = () => {
-    this.setState(prevState => ({ pageNumber: prevState.pageNumber + 1 }));
-};
+    const handleSearchFormSubmit = (inputNameImages) => {
+        setInputNameImages(inputNameImages);
+        setImages([]);
+        setPageNumber(1);
+    }
 
-  render() {
-    return (
-      <DivStyled>
-        <Searchbar onSubmit = {this.handleSearchFormSubmit}></Searchbar>
-        <ImageGallery 
-        input = {this.state.inputNameImages} 
-        status = {this.state.status}
-        total = {this.state.total}
-        images = {this.state.images}
-        largeImage = {this.state.largeImage}
-        openModal = {this.openModal}
-        loadMore = {this.loadMore}
-        closeModal = {this.closeModal}
-        showModal = {this.state.showModal}
+    const openModal = (img) => {
+        setShowModal(true);
+        setLargeImage(img);
+    }
 
-        ></ImageGallery>
-      </DivStyled>
-    );
-  } 
-}
+    const closeModal = () => {
+        setShowModal(false);
+    }
 
-export default App;
+    const loadMore = () => {
+        setPageNumber(prevState => prevState + 1);
+    }
+
+    
+        return (
+          <DivStyled>
+            <Searchbar onSubmit = {handleSearchFormSubmit}></Searchbar>
+            <ImageGallery 
+            input = {inputNameImages} 
+            status = {status}
+            total = {total}
+            images = {images}
+            largeImage = {largeImage}
+            openModal = {openModal}
+            loadMore = {loadMore}
+            closeModal = {closeModal}
+            showModal = {showModal}
+    
+            ></ImageGallery>
+          </DivStyled>
+        );
+} 
+
